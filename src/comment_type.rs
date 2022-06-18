@@ -8,6 +8,6 @@ pub enum CommentType {
 
 impl Default for CommentType {
     fn default() -> Self {
-        return Self::Unknown;
+        Self::Unknown
     }
 }

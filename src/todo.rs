@@ -28,11 +28,12 @@ impl Todo {
             return None;
         }
 
-        let mut me = Self::default();
-
-        me.file = file.to_string();
-        me.line = line;
-        me.raw = raw.to_string();
+        let mut me = Self {
+            file: file.to_string(),
+            line,
+            raw: raw.to_string(),
+            ..Default::default()
+        };
 
         me.detect_todo();
 

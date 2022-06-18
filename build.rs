@@ -25,15 +25,13 @@ fn main() {
 fn get_list(path: &str) -> Vec<String> {
     let mut extensions = Vec::new();
     let file = fs::File::open(path).unwrap();
-    for line in io::BufReader::new(file).lines() {
-        if let Ok(line) = line {
-            let mut exts: Vec<String> = line
-                .split(',')
-                .map(|x| x.trim().to_string())
-                .filter(|x| !x.starts_with('#'))
-                .collect();
-            extensions.append(&mut exts);
-        }
+    for line in io::BufReader::new(file).lines().flatten() {
+        let mut exts: Vec<String> = line
+            .split(',')
+            .map(|x| x.trim().to_string())
+            .filter(|x| !x.starts_with('#'))
+            .collect();
+        extensions.append(&mut exts);
     }
 
     let exts = extensions
