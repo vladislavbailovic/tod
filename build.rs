@@ -7,10 +7,15 @@ fn main() {
     let out_dir = env::var_os("OUT_DIR").unwrap();
     let dest_path = Path::new(&out_dir).join("lists.rs");
 
-
     let out = vec![
-        format!("fn get_allowlist_extensions() -> Vec<String> {{ vec![{}] }}\n", get_list("config/allowlist/extensions").join(",")),
-        format!("fn get_blocklist_directories() -> Vec<String> {{ vec![{}] }}\n", get_list("config/blocklist/directories").join(","))
+        format!(
+            "fn get_allowlist_extensions() -> Vec<String> {{ vec![{}] }}\n",
+            get_list("config/allowlist/extensions").join(",")
+        ),
+        format!(
+            "fn get_blocklist_directories() -> Vec<String> {{ vec![{}] }}\n",
+            get_list("config/blocklist/directories").join(",")
+        ),
     ];
     fs::write(&dest_path, out.join("\n")).unwrap();
 

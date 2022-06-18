@@ -2,8 +2,8 @@ use crate::comment_type::*;
 
 #[derive(Debug, Default)]
 pub struct Todo {
-    file: String,
-    line: usize,
+    pub file: String,
+    pub line: usize,
     pos: usize,
     comment_type: CommentType,
     priority: usize,
