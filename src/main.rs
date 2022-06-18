@@ -62,6 +62,7 @@ fn ls_files(path: &str) -> Result<Vec<String>, io::Error> {
     }
 
     let mut files = Vec::new();
+    let blocklist = get_blocklist_directories();
 
     for entry in fs::read_dir(path)? {
         let entry = entry?;
@@ -69,10 +70,7 @@ fn ls_files(path: &str) -> Result<Vec<String>, io::Error> {
 
         if let Some(last) = path.file_name() {
             let last = last.to_str().unwrap();
-            if last.starts_with('.') {
-                continue;
-            }
-            if last == "node_modules" {
+            if blocklist.contains(&last.to_string()) {
                 continue;
             }
         }
