@@ -1,6 +1,7 @@
 use super::*;
 use crate::actions::scan;
 
+#[derive(Default)]
 pub struct Command {}
 impl Runnable for Command {
     fn run(&self) -> io::Result<()> {
