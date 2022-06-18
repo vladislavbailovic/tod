@@ -1,6 +1,6 @@
 use crate::comment_type::*;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Todo {
     pub file: String,
     pub line: usize,

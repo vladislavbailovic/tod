@@ -4,19 +4,15 @@ use std::io::{self, BufRead};
 use crate::actions::scan;
 
 pub fn done(path: &str, which: usize) -> io::Result<()> {
-    let todos = scan::get_todos(path)?;
-    for (idx, todo) in todos.iter().enumerate() {
-        if idx != which {
-            continue;
-        }
-        let file = File::open(&todo.file)?;
-        let mut lines: Vec<String> = io::BufReader::new(file)
-            .lines()
-            .filter_map(|x| x.ok())
-            .collect();
-        lines[todo.line] = lines[todo.line].replace("TODO", "DONE");
-        println!("file: {}, lines: \n{:?}", todo.file, lines[todo.line]);
-        break;
-    }
+    let todo = scan::find(path, which)?;
+
+    let file = File::open(&todo.file)?;
+    let mut lines: Vec<String> = io::BufReader::new(file)
+        .lines()
+        .filter_map(|x| x.ok())
+        .collect();
+    lines[todo.line] = lines[todo.line].replace("TODO", "DONE");
+    println!("file: {}, lines: \n{:?}", todo.file, lines[todo.line]);
+
     Ok(())
 }

@@ -15,7 +15,7 @@ impl Default for Command {
 
 impl Runnable for Command {
     fn run(&self) -> io::Result<()> {
-        let todos = scan::get_todos(&self.path)?;
+        let todos = scan::all(&self.path)?;
         println!("{:#?}\n----------\n", todos);
         for (idx, todo) in todos.iter().enumerate() {
             println!("- [{:>3}] {}", idx, todo);
