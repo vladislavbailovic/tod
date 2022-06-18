@@ -1,0 +1,6 @@
+tod [SUBCOMMAND] [OPTIONS...]
+
+... where SUBCOMMAND is one of:
+	- help:    this help page
+	- ls|list: list todo lines
+	- mark:    mark todo as done

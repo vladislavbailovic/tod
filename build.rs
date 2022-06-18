@@ -4,6 +4,29 @@ use std::io::{self, BufRead};
 use std::path::Path;
 
 fn main() {
+    write_lists();
+    write_help();
+
+    println!("cargo:rerun-if-changed=config");
+}
+
+fn write_help() {
+    let out_dir = env::var_os("OUT_DIR").unwrap();
+    let dest_path = Path::new(&out_dir).join("help.rs");
+
+    let file = fs::File::open("config/help").unwrap();
+    let out: Vec<String> = io::BufReader::new(file).lines().flatten().collect();
+    fs::write(
+        &dest_path,
+        format!(
+            "fn get_help_content() -> String {{ \"{}\".to_string() }}",
+            out.join("\n")
+        ),
+    )
+    .unwrap();
+}
+
+fn write_lists() {
     let out_dir = env::var_os("OUT_DIR").unwrap();
     let dest_path = Path::new(&out_dir).join("lists.rs");
 
@@ -18,8 +41,6 @@ fn main() {
         ),
     ];
     fs::write(&dest_path, out.join("\n")).unwrap();
-
-    println!("cargo:rerun-if-changed=config");
 }
 
 fn get_list(path: &str) -> Vec<String> {
