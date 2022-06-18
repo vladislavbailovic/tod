@@ -3,8 +3,8 @@ use std::io::{self, BufRead};
 
 use crate::actions::scan;
 
-pub fn done(which: usize) -> io::Result<()> {
-    let todos = scan::get_todos("../rssl")?;
+pub fn done(path: &str, which: usize) -> io::Result<()> {
+    let todos = scan::get_todos(path)?;
     for (idx, todo) in todos.iter().enumerate() {
         if idx != which {
             continue;
