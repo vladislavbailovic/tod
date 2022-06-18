@@ -1,0 +1,9 @@
+#' vim set ft=bash
+rs, toml
+go
+json, js
+php
+py
+# HTML-related file types
+css, html, scss
+test
