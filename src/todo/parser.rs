@@ -10,7 +10,6 @@ pub struct TodoParser {
     todo: String,
 }
 
-
 impl TodoParser {
     pub fn parse(file: &str, raw: &str, line: usize) -> Option<Todo> {
         if !raw.contains("TODO") {
@@ -26,14 +25,14 @@ impl TodoParser {
 
         match me.comment_type {
             CommentType::Unknown => None,
-            _ => Some(Todo{
+            _ => Some(Todo {
                 file: file.to_string(),
                 line,
                 pos: me.pos,
                 comment_type: me.comment_type,
                 todo: me.todo,
                 priority: me.priority,
-            })
+            }),
         }
     }
 
@@ -108,5 +107,67 @@ impl TodoParser {
 
     fn set_priority(&mut self, priority: usize) {
         self.priority = priority;
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn detect_oneline_c() {
+        let mut p = TodoParser {
+            raw: "// @TODO: this is a string".to_string(),
+            ..Default::default()
+        };
+        p.detect_todo();
+
+        assert!(p.comment_type == CommentType::OnelineC);
+        assert!(p.todo == "this is a string");
+    }
+
+    #[test]
+    fn detect_multiline_c_opening_docblock() {
+        let mut p = TodoParser {
+            raw: "/** @TODO: this is a string".to_string(),
+            ..Default::default()
+        };
+        p.detect_todo();
+
+        assert!(
+            p.comment_type == CommentType::MultilineC,
+            "should be multiline c"
+        );
+        assert!(p.todo == "this is a string");
+    }
+
+    #[test]
+    fn detect_multiline_c_normal_opening() {
+        let mut p = TodoParser {
+            raw: "/* @TODO: this is a string".to_string(),
+            ..Default::default()
+        };
+        p.detect_todo();
+
+        assert!(
+            p.comment_type == CommentType::MultilineC,
+            "should be multiline c"
+        );
+        assert!(p.todo == "this is a string");
+    }
+
+    #[test]
+    fn detect_multiline_c_normal_body() {
+        let mut p = TodoParser {
+            raw: "* TODO!: this is a string".to_string(),
+            ..Default::default()
+        };
+        p.detect_todo();
+
+        assert!(
+            p.comment_type == CommentType::MultilineC,
+            "should be multiline c"
+        );
+        assert!(p.todo == "this is a string");
     }
 }
