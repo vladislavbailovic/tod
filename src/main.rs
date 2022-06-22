@@ -3,6 +3,7 @@ use std::io;
 mod actions;
 mod cli;
 mod comment_type;
+mod priority;
 mod sources;
 mod todo;
 

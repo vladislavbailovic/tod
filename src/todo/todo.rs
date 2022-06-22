@@ -1,11 +1,12 @@
 use crate::comment_type::*;
+use crate::priority::*;
 
 #[derive(Debug, Default, Clone)]
 pub struct Todo {
     pub file: String,
     pub line: usize,
     pub(super) pos: usize,
-    pub(super) priority: usize,
+    pub(super) priority: Priority,
     pub(super) todo: String,
 }
 

@@ -1,11 +1,12 @@
 use crate::comment_type::*;
+use crate::priority::*;
 use crate::todo::Todo;
 
 #[derive(Default)]
 pub struct TodoParser {
     pos: usize,
     comment_type: CommentType,
-    priority: usize,
+    priority: Priority,
     raw: String,
     todo: String,
 }
@@ -105,7 +106,7 @@ impl TodoParser {
     }
 
     fn set_priority(&mut self, priority: usize) {
-        self.priority = priority;
+        self.priority = Priority::from(priority)
     }
 }
 
