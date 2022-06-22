@@ -7,7 +7,6 @@ pub struct Todo {
     pos: usize,
     comment_type: CommentType,
     priority: usize,
-    raw: String,
     todo: String,
 }
 
@@ -22,22 +21,40 @@ impl std::fmt::Display for Todo {
     }
 }
 
-impl Todo {
-    pub fn parse(file: &str, raw: &str, line: usize) -> Option<Self> {
+#[derive(Default)]
+pub struct TodoParser {
+    pos: usize,
+    comment_type: CommentType,
+    priority: usize,
+    raw: String,
+    todo: String,
+}
+
+
+impl TodoParser {
+    pub fn parse(file: &str, raw: &str, line: usize) -> Option<Todo> {
         if !raw.contains("TODO") {
             return None;
         }
 
         let mut me = Self {
-            file: file.to_string(),
-            line,
             raw: raw.to_string(),
             ..Default::default()
         };
 
         me.detect_todo();
 
-        Some(me)
+        match me.comment_type {
+            CommentType::Unknown => None,
+            _ => Some(Todo{
+                file: file.to_string(),
+                line,
+                pos: me.pos,
+                comment_type: me.comment_type,
+                todo: me.todo,
+                priority: me.priority,
+            })
+        }
     }
 
     fn detect_todo(&mut self) {
