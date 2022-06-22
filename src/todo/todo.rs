@@ -5,7 +5,6 @@ pub struct Todo {
     pub file: String,
     pub line: usize,
     pub(super) pos: usize,
-    pub(super) comment_type: CommentType,
     pub(super) priority: usize,
     pub(super) todo: String,
 }

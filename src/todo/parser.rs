@@ -29,7 +29,6 @@ impl TodoParser {
                 file: file.to_string(),
                 line,
                 pos: me.pos,
-                comment_type: me.comment_type,
                 todo: me.todo,
                 priority: me.priority,
             }),
