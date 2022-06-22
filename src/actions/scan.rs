@@ -28,7 +28,7 @@ fn parse_file(path: &str) -> Result<Vec<Todo>, io::Error> {
     let file = File::open(path)?;
     for (idx, line) in io::BufReader::new(file).lines().enumerate() {
         let line = line?;
-        if let Some(todo) = TodoParser::parse(path, &line, idx) {
+        if let Some(todo) = parser::TodoParser::parse(path, &line, idx) {
             todos.push(todo);
         }
     }
