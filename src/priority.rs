@@ -1,7 +1,7 @@
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub enum Priority {
     Normal,
-    High(usize)
+    High(usize),
 }
 
 impl Default for Priority {

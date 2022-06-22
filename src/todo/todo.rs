@@ -12,10 +12,15 @@ pub struct Todo {
 
 impl std::fmt::Display for Todo {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let todo = "TODO".to_owned()
+            + &match self.priority {
+                Priority::Normal => "".to_string(),
+                Priority::High(d) => format!(" ({})", d),
+            };
         write!(
             f,
-            "TODO: {}:{}:{}\n\t{}",
-            self.file, self.line, self.pos, self.todo
+            "{}: {}:{}:{}\n\t{}",
+            todo, self.file, self.line, self.pos, self.todo
         )?;
         Ok(())
     }
