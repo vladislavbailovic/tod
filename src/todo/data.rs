@@ -22,11 +22,7 @@ impl std::fmt::Display for Todo {
         write!(
             f,
             "{}: {}:{}:{}\n\t{}",
-            todo,
-            self.file,
-            self.line,
-            self.pos,
-            self.todo,
+            todo, self.file, self.line, self.pos, self.todo,
         )?;
         Ok(())
     }

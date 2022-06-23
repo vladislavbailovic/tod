@@ -11,12 +11,11 @@ pub trait Runnable {
 
 pub fn parse() -> Box<dyn Runnable> {
     let mut args = env::args();
-    let cmd: Box<dyn Runnable>;
-    if let Some(subcommand) = args.nth(1) {
-        cmd = parse_subcommand_options(&subcommand, args.collect());
+    let cmd: Box<dyn Runnable> = if let Some(subcommand) = args.nth(1) {
+        parse_subcommand_options(&subcommand, args.collect())
     } else {
-        cmd = Box::new(command_help::Command::default());
-    }
+        Box::new(command_help::Command::default())
+    };
     cmd
 }
 
