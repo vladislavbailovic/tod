@@ -21,28 +21,27 @@ impl std::fmt::Display for Todo {
             };
         write!(
             f,
-            "{}: {}:{}:{}\n\t{}\n{}",
+            "{}: {}:{}:{}\n\t{}",
             todo,
             self.file,
             self.line,
             self.pos,
             self.todo,
-            self.get_id()
         )?;
         Ok(())
     }
 }
 
 impl Todo {
+    pub fn get_id(&self) -> String {
+        format!("{:x}", self.hash())
+    }
+
     fn hash(&self) -> u64 {
         let mut h = DefaultHasher::new();
         let fmt = format!("{}:{}:{}", self.file, self.line, self.pos);
         fmt.hash(&mut h);
         h.finish()
-    }
-
-    fn get_id(&self) -> String {
-        format!("{:x}", self.hash())
     }
 }
 

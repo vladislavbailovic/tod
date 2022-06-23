@@ -25,12 +25,7 @@ pub fn parse_subcommand_options(subcmd: &str, args: Vec<String>) -> Box<dyn Runn
     match subcmd {
         "ls" | "list" => Box::new(command_list::Command::default()),
         "mark" => {
-            let idx = if let Some(idx) = args.next() {
-                idx.parse::<usize>().ok()
-            } else {
-                None
-            };
-            if let Some(idx) = idx {
+            if let Some(idx) = args.next() {
                 Box::new(command_mark::Command::new(idx))
             } else {
                 Box::new(command_help::Command::default())

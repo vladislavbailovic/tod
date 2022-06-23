@@ -12,15 +12,24 @@ pub fn all(path: &str) -> Result<Vec<Todo>, io::Error> {
     Ok(todos)
 }
 
-pub fn find(path: &str, which: usize) -> Result<Todo, io::Error> {
-    let todos = all(path)?;
-    if todos.len() < which {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidData,
-            format!("ERROR: no todo at position {} in {}", which, path),
-        ));
-    }
-    Ok(todos[which].clone())
+pub fn find(path: &str, which: &str) -> Result<Todo, io::Error> {
+    all(path)?
+        .into_iter()
+        .find(|x| x.get_id().starts_with(which))
+        .ok_or_else(|| {
+            io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!("ERROR: no todo with ID matching {} in {}", which, path),
+            )
+        })
+    // let todos = all(path)?;
+    // if todos.len() < which {
+    //     return Err(io::Error::new(
+    //         io::ErrorKind::InvalidData,
+    //         format!("ERROR: no todo at position {} in {}", which, path),
+    //     ));
+    // }
+    // Ok(todos[which].clone())
 }
 
 fn parse_file(path: &str) -> Result<Vec<Todo>, io::Error> {

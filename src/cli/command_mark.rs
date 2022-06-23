@@ -2,14 +2,14 @@ use super::*;
 use crate::actions::mark;
 
 pub struct Command {
-    index: usize,
+    id: String,
     path: String,
 }
 
 impl Command {
-    pub fn new(index: usize) -> Self {
+    pub fn new(id: &str) -> Self {
         Self {
-            index,
+            id: id.to_string(),
             path: ".".to_string(),
         }
     }
@@ -17,7 +17,7 @@ impl Command {
 
 impl Runnable for Command {
     fn run(&self) -> io::Result<()> {
-        mark::done(&self.path, self.index)?;
+        mark::done(&self.path, &self.id)?;
         Ok(())
     }
 }
