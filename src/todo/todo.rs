@@ -1,4 +1,6 @@
-use crate::comment_type::*;
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
+
 use crate::priority::*;
 
 #[derive(Debug, Default, Clone)]
@@ -19,9 +21,51 @@ impl std::fmt::Display for Todo {
             };
         write!(
             f,
-            "{}: {}:{}:{}\n\t{}",
-            todo, self.file, self.line, self.pos, self.todo
+            "{}: {}:{}:{}\n\t{}\n{}",
+            todo,
+            self.file,
+            self.line,
+            self.pos,
+            self.todo,
+            self.get_id()
         )?;
         Ok(())
+    }
+}
+
+impl Todo {
+    fn hash(&self) -> u64 {
+        let mut h = DefaultHasher::new();
+        let fmt = format!("{}:{}:{}", self.file, self.line, self.pos);
+        fmt.hash(&mut h);
+        h.finish()
+    }
+
+    fn get_id(&self) -> String {
+        format!("{:x}", self.hash())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn hashing_todos_same_info() {
+        let t1 = Todo {
+            file: "test".to_string(),
+            line: 1312,
+            pos: 161,
+            priority: Priority::Normal,
+            todo: String::from("one"),
+        };
+        let t2 = Todo {
+            file: "test".to_string(),
+            line: 1312,
+            pos: 161,
+            priority: Priority::Normal,
+            todo: String::from("two"),
+        };
+        assert!(t1.get_id() == t2.get_id());
     }
 }
