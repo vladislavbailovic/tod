@@ -23,3 +23,12 @@ impl Runnable for Command {
         Ok(())
     }
 }
+
+impl WithCwd for Command {
+    fn get_cwd(&self) -> String {
+        self.path.as_str().to_string()
+    }
+    fn set_cwd(&mut self, path: &str) {
+        self.path = path.to_string();
+    }
+}
