@@ -1,9 +1,14 @@
 use std::collections::HashMap;
 
-#[derive(Debug)]
 struct Args {
     pub(super) named: HashMap<String, String>,
     pub(super) positional: Vec<String>,
+}
+
+impl Default for Args {
+    fn default() -> Self {
+        Self::from(std::env::args().collect::<Vec<String>>())
+    }
 }
 
 impl From<Vec<String>> for Args {
@@ -96,5 +101,15 @@ mod test {
         assert!(args.named.len() == 2);
         assert!(args.named["-one"] == "test");
         assert!(args.named["-two"] == "value");
+    }
+}
+
+#[cfg(test)]
+mod default {
+    use super::*;
+
+    #[test]
+    fn args_are_loaded_from_env() {
+        let _result: Args = Default::default();
     }
 }
