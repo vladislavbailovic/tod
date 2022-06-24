@@ -17,7 +17,7 @@ pub trait WithCwd {
 pub fn parse() -> Box<dyn Runnable> {
     let flags: args::Args = Default::default();
 
-    let cmd: Box<dyn Runnable> = if !flags.positional.is_empty() {
+    let cmd: Box<dyn Runnable> = if flags.positional.len() > 1 {
         parse_subcommand_options(flags)
     } else {
         Box::new(command_help::Command::default())

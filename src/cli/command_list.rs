@@ -5,6 +5,8 @@ pub struct Command {
     path: String,
 }
 
+// TODO: list formating for todos
+
 impl Default for Command {
     fn default() -> Self {
         Self {

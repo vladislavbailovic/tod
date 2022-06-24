@@ -7,6 +7,10 @@ pub struct Command {
 }
 
 impl Command {
+    // TODO: actually save file when marking
+    // TODO: add comment support
+    // TODO: clear entire comment when marking
+
     pub fn new(id: &str) -> Self {
         Self {
             id: id.to_string(),
