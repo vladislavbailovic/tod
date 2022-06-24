@@ -4,6 +4,7 @@ use crate::actions::mark;
 pub struct Command {
     id: String,
     path: String,
+    comment: Option<String>,
 }
 
 impl Command {
@@ -15,7 +16,12 @@ impl Command {
         Self {
             id: id.to_string(),
             path: ".".to_string(),
+            comment: None,
         }
+    }
+
+    pub fn set_comment(&mut self, cmt: &str) {
+        self.comment = Some(cmt.to_string());
     }
 }
 

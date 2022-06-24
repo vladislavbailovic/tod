@@ -30,7 +30,14 @@ fn parse_subcommand_options(args: args::Args) -> Box<dyn Runnable> {
         "ls" | "list" => parse_path(command_list::Command::default(), args),
         "mark" => {
             if args.positional.len() > 1 {
-                parse_path(command_mark::Command::new(&args.positional[2]), args)
+                let mut cmd = command_mark::Command::new(&args.positional[2]);
+                if let Some(cmt) = args.named.get("-c") {
+                    cmd.set_comment(cmt);
+                }
+                if let Some(cmt) = args.named.get("--comment") {
+                    cmd.set_comment(cmt);
+                }
+                parse_path(cmd, args)
             } else {
                 Box::new(command_help::Command::default())
             }
