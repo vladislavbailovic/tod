@@ -9,7 +9,6 @@ pub struct Command {
 
 impl Command {
     // TODO: actually save file when marking
-    // TODO: add comment support
     // TODO: clear entire comment when marking
 
     pub fn new(id: &str) -> Self {
@@ -27,7 +26,7 @@ impl Command {
 
 impl Runnable for Command {
     fn run(&self) -> io::Result<()> {
-        mark::done(&self.path, &self.id)?;
+        mark::done(&self.path, &self.id, &self.comment)?;
         Ok(())
     }
 }
