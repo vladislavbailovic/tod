@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-struct Args {
+pub(super) struct Args {
     pub(super) named: HashMap<String, String>,
     pub(super) positional: Vec<String>,
 }

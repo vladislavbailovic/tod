@@ -1,4 +1,3 @@
-use std::env;
 use std::io;
 
 mod args;
@@ -16,21 +15,22 @@ pub trait WithCwd {
 }
 
 pub fn parse() -> Box<dyn Runnable> {
-    let mut args = env::args();
-    let cmd: Box<dyn Runnable> = if let Some(subcommand) = args.nth(1) {
-        parse_subcommand_options(&subcommand, args.collect())
+    let flags: args::Args = Default::default();
+
+    let cmd: Box<dyn Runnable> = if !flags.positional.is_empty() {
+        parse_subcommand_options(flags)
     } else {
         Box::new(command_help::Command::default())
     };
     cmd
 }
 
-fn parse_subcommand_options(subcmd: &str, args: Vec<String>) -> Box<dyn Runnable> {
-    match subcmd {
+fn parse_subcommand_options(args: args::Args) -> Box<dyn Runnable> {
+    match args.positional[1].as_str() {
         "ls" | "list" => parse_path(command_list::Command::default(), args),
         "mark" => {
-            if let Some(idx) = args.get(0) {
-                parse_path(command_mark::Command::new(idx), args)
+            if args.positional.len() > 1 {
+                parse_path(command_mark::Command::new(&args.positional[2]), args)
             } else {
                 Box::new(command_help::Command::default())
             }
@@ -40,18 +40,11 @@ fn parse_subcommand_options(subcmd: &str, args: Vec<String>) -> Box<dyn Runnable
     }
 }
 
-fn parse_path<T: 'static + WithCwd + Runnable>(mut cmd: T, args: Vec<String>) -> Box<dyn Runnable> {
-    let mut path = None;
-    {
-        let mut args = args.iter();
-        while let Some(arg) = args.next() {
-            if "-d" == arg || "--dir" == arg {
-                path = args.next();
-                break;
-            }
-        }
-    };
-    if let Some(path) = path {
+fn parse_path<T: 'static + WithCwd + Runnable>(mut cmd: T, args: args::Args) -> Box<dyn Runnable> {
+    if let Some(path) = args.named.get("-d") {
+        cmd.set_cwd(path);
+    }
+    if let Some(path) = args.named.get("--dir") {
         cmd.set_cwd(path);
     }
     Box::new(cmd)
