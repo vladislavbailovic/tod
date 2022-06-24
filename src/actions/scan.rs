@@ -22,14 +22,6 @@ pub fn find(path: &str, which: &str) -> Result<Todo, io::Error> {
                 format!("ERROR: no todo with ID matching {} in {}", which, path),
             )
         })
-    // let todos = all(path)?;
-    // if todos.len() < which {
-    //     return Err(io::Error::new(
-    //         io::ErrorKind::InvalidData,
-    //         format!("ERROR: no todo at position {} in {}", which, path),
-    //     ));
-    // }
-    // Ok(todos[which].clone())
 }
 
 fn parse_file(path: &str) -> Result<Vec<Todo>, io::Error> {
