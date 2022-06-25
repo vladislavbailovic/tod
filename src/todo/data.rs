@@ -12,22 +12,6 @@ pub struct Todo {
     pub(super) todo: String,
 }
 
-impl std::fmt::Display for Todo {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let todo = "TODO".to_owned()
-            + &match self.priority {
-                Priority::Normal => "".to_string(),
-                Priority::High(d) => format!(" ({})", d),
-            };
-        write!(
-            f,
-            "{}: {}:{}:{}\n\t{}",
-            todo, self.file, self.line, self.pos, self.todo,
-        )?;
-        Ok(())
-    }
-}
-
 impl Todo {
     pub fn get_id(&self) -> String {
         format!("{:x}", self.hash())

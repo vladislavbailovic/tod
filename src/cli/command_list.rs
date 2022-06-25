@@ -1,11 +1,10 @@
 use super::*;
 use crate::actions::scan;
+use crate::todo::{Format, Formatter};
 
 pub struct Command {
     path: String,
 }
-
-// TODO: list formating for todos
 
 impl Default for Command {
     fn default() -> Self {
@@ -18,8 +17,9 @@ impl Default for Command {
 impl Runnable for Command {
     fn run(&self) -> io::Result<()> {
         let todos = scan::all(&self.path)?;
+        let formatter = Formatter::new(Format::Default);
         for todo in todos {
-            println!("- [{:>3}] {}", todo.get_id(), todo);
+            println!("{}", formatter.format(todo));
         }
         Ok(())
     }

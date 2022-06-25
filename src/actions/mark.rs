@@ -18,7 +18,6 @@ pub fn done(path: &str, which: &str, comment: &Option<String>) -> io::Result<()>
     };
     lines[todo.line] = lines[todo.line].replace("TODO", &with);
     println!("file: {}, lines: \n{:?}", todo.file, lines[todo.line]);
-    println!("{}", todo);
 
     Ok(())
 }
