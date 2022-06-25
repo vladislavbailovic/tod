@@ -4,12 +4,20 @@ use crate::todo::{Format, Formatter};
 
 pub struct Command {
     path: String,
+    format: Format,
+}
+
+impl Command {
+    pub fn set_format(&mut self, fmt: &str) {
+        self.format = fmt.to_string().into();
+    }
 }
 
 impl Default for Command {
     fn default() -> Self {
         Self {
             path: ".".to_string(),
+            format: Format::Default,
         }
     }
 }
@@ -17,7 +25,7 @@ impl Default for Command {
 impl Runnable for Command {
     fn run(&self) -> io::Result<()> {
         let todos = scan::all(&self.path)?;
-        let formatter = Formatter::new(Format::Default);
+        let formatter = Formatter::new(self.format);
         for todo in todos {
             println!("{}", formatter.format(todo));
         }

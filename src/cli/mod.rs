@@ -27,7 +27,16 @@ pub fn parse() -> Box<dyn Runnable> {
 
 fn parse_subcommand_options(args: args::Args) -> Box<dyn Runnable> {
     match args.positional[1].as_str() {
-        "ls" | "list" => parse_path(command_list::Command::default(), args),
+        "ls" | "list" => {
+            let mut cmd = command_list::Command::default();
+            if let Some(fmt) = args.named.get("-f") {
+                cmd.set_format(fmt);
+            }
+            if let Some(fmt) = args.named.get("--format") {
+                cmd.set_format(fmt);
+            }
+            parse_path(cmd, args)
+        }
         "mark" => {
             if args.positional.len() > 1 {
                 let mut cmd = command_mark::Command::new(&args.positional[2]);
