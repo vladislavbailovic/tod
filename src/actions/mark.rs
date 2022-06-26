@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{self, BufRead};
+use std::io::{self, BufRead, Write};
 
 use crate::actions::scan;
 use crate::todo::Todo;
@@ -42,6 +42,13 @@ impl Replacer {
             .filter_map(|x| x.ok())
             .collect();
         lines[self.todo.line] = lines[self.todo.line].replace("TODO", &self.mark);
+        Ok(lines)
+    }
+
+    pub fn replace(&self) -> io::Result<Vec<String>> {
+        let lines = self.dry_run()?;
+        let mut file = File::create(&self.todo.file)?;
+        write!(file, "{}", lines.join("\n"))?;
         Ok(lines)
     }
 

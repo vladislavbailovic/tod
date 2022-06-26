@@ -5,10 +5,10 @@ pub struct Command {
     id: String,
     path: String,
     comment: Option<String>,
+    save: bool,
 }
 
 impl Command {
-    // TODO: actually save file when marking
     // TODO: clear entire comment when marking
     // TODO: take care of priority indicators and colons in replacement
 
@@ -17,11 +17,16 @@ impl Command {
             id: id.to_string(),
             path: ".".to_string(),
             comment: None,
+            save: false,
         }
     }
 
     pub fn set_comment(&mut self, cmt: &str) {
         self.comment = Some(cmt.to_string());
+    }
+
+    pub fn set_save(&mut self) {
+        self.save = true;
     }
 }
 
@@ -29,7 +34,12 @@ impl Runnable for Command {
     fn run(&self) -> io::Result<()> {
         let marker = Marker::Done(&self.comment);
         let replacer = marker.mark(&self.path, &self.id)?;
-        let lines = replacer.dry_run()?;
+        let lines = if self.save {
+            replacer.replace()?
+        } else {
+            replacer.dry_run()?
+        };
+
         for (idx, line) in lines.iter().enumerate() {
             if idx == replacer.affected_line() {
                 println!("[{:>4}] {}", idx + 1, line);

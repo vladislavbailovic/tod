@@ -46,6 +46,12 @@ fn parse_subcommand_options(args: args::Args) -> Box<dyn Runnable> {
                 if let Some(cmt) = args.named.get("--comment") {
                     cmd.set_comment(cmt);
                 }
+                if let Some(_) = args.named.get("--save") {
+                    cmd.set_save();
+                }
+                if let Some(_) = args.named.get("-s") {
+                    cmd.set_save();
+                }
                 parse_path(cmd, args)
             } else {
                 Box::new(command_help::Command::default())
