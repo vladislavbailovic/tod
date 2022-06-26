@@ -1,5 +1,5 @@
 use super::*;
-use crate::actions::mark;
+use crate::actions::mark::Marker;
 
 pub struct Command {
     id: String,
@@ -26,7 +26,10 @@ impl Command {
 
 impl Runnable for Command {
     fn run(&self) -> io::Result<()> {
-        mark::done(&self.path, &self.id, &self.comment)?;
+        let marker = Marker::Done(&self.comment);
+        let replacer = marker.mark(&self.path, &self.id)?;
+        let lines = replacer.dry_run()?;
+        println!("{:#?}", lines);
         Ok(())
     }
 }
