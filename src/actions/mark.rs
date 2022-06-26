@@ -25,6 +25,31 @@ impl<'mark> Marker<'mark> {
     }
 }
 
+pub struct Replacer {
+    todo: Todo,
+    mark: String,
+}
+
+impl Replacer {
+    fn new(todo: Todo, mark: String) -> Self {
+        Self { todo, mark }
+    }
+
+    pub fn dry_run(&self) -> io::Result<Vec<String>> {
+        let file = File::open(&self.todo.file)?;
+        let mut lines: Vec<String> = io::BufReader::new(file)
+            .lines()
+            .filter_map(|x| x.ok())
+            .collect();
+        lines[self.todo.line] = lines[self.todo.line].replace("TODO", &self.mark);
+        Ok(lines)
+    }
+
+    pub fn affected_line(&self) -> usize {
+        self.todo.line
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -65,26 +90,5 @@ mod test {
         } else {
             assert!(false, "expected to be able to replace a line in test");
         }
-    }
-}
-
-pub struct Replacer {
-    todo: Todo,
-    mark: String,
-}
-
-impl Replacer {
-    fn new(todo: Todo, mark: String) -> Self {
-        Self { todo, mark }
-    }
-
-    pub fn dry_run(&self) -> io::Result<Vec<String>> {
-        let file = File::open(&self.todo.file)?;
-        let mut lines: Vec<String> = io::BufReader::new(file)
-            .lines()
-            .filter_map(|x| x.ok())
-            .collect();
-        lines[self.todo.line] = lines[self.todo.line].replace("TODO", &self.mark);
-        Ok(lines)
     }
 }

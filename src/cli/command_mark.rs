@@ -10,6 +10,7 @@ pub struct Command {
 impl Command {
     // TODO: actually save file when marking
     // TODO: clear entire comment when marking
+    // TODO: take care of priority indicators and colons in replacement
 
     pub fn new(id: &str) -> Self {
         Self {
@@ -29,7 +30,13 @@ impl Runnable for Command {
         let marker = Marker::Done(&self.comment);
         let replacer = marker.mark(&self.path, &self.id)?;
         let lines = replacer.dry_run()?;
-        println!("{:#?}", lines);
+        for (idx, line) in lines.iter().enumerate() {
+            if idx == replacer.affected_line() {
+                println!("[{:>4}] {}", idx + 1, line);
+            } else {
+                println!("{:>5}: {}", idx + 1, line);
+            }
+        }
         Ok(())
     }
 }
