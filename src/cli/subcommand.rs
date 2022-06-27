@@ -19,7 +19,7 @@ struct Flag<'cmd> {
     kind: FlagType,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 enum FlagType {
     Positional,
     Boolean,
@@ -41,14 +41,23 @@ impl<'cmd> Arguments<'cmd> {
         self.args = args.clone();
         let args = self.parse_boolean(args);
         let args = self.parse_named(args);
+        self.positional = args;
+    }
+
+    fn subcommand(&self) -> Option<&'cmd str> {
+        if self.positional.len() < 2 {
+            return None;
+        }
+        Some(&*self.positional[1])
     }
 
     fn get_supported(&self, kind: FlagType) -> Vec<&'cmd str> {
          self.supported.clone().iter().filter_map(|x| {
-            match x.kind {
-                kind => Some(x.name),
-                _ => None,
-            }
+             if x.kind == kind {
+                 Some(x.name)
+             } else {
+                 None
+             }
         }).collect()
     }
 
@@ -79,6 +88,20 @@ impl<'cmd> Arguments<'cmd> {
         }
         remaining
     }
+
+    fn has(&self, flag: Flag) -> bool {
+        match flag.kind {
+            FlagType::Boolean => self.boolean.contains(&flag.name),
+            FlagType::Value => {
+                if let Some(_) = self.named.get(flag.name) {
+                    true
+                } else {
+                    false
+                }
+            },
+            FlagType::Positional => self.positional.len() > 0,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -101,7 +124,7 @@ mod test {
         ]);
         let remaining = args.parse_boolean(vec!["one", "--help", "two"]);
         assert_eq!(args.boolean.len(), 1);
-        // assert!(args.boolean.contains("--help"));
+        assert!(args.has(Flag{ name: "--help", kind: FlagType::Boolean}));
 
         assert_eq!(remaining.len(), 2);
     }
@@ -114,5 +137,41 @@ mod test {
         let remaining = args.parse_named(vec!["--one", "two", "three"]);
         assert_eq!(args.named.len(), 1);
         assert_eq!(remaining.len(), 1);
+
+        assert_eq!(args.named["--one"], "two");
+    }
+
+    #[test]
+    fn subcommand_empty() {
+        let mut args = Arguments::new(Vec::new());
+        args.parse(Vec::new());
+
+        match args.subcommand() {
+            Some(_) => assert!(false, "there should be no subcommand"),
+            None => assert!(true),
+        }
+    }
+
+    #[test]
+    fn subcommand_one() {
+        let mut args = Arguments::new(Vec::new());
+        args.parse(vec!["wat"]);
+
+        match args.subcommand() {
+            Some(_) => assert!(false, "main command is not subcommand"),
+            None => assert!(true),
+        }
+    }
+
+    #[test]
+    fn subcommand_not_empty() {
+        let mut args = Arguments::new(Vec::new());
+        args.parse(vec!["tod", "test"]);
+
+        match args.subcommand() {
+            Some("test") => assert!(true),
+            Some(_) => assert!(false, "wrong subcommand"),
+            None => assert!(false, "there should be a subcommand"),
+        }
     }
 }
