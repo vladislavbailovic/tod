@@ -1,10 +1,5 @@
 use std::collections::HashMap;
 
-struct Subcommand<'cmd> {
-    name: &'cmd str,
-    args: Arguments<'cmd>,
-}
-
 struct Arguments<'cmd> {
     positional: Vec<&'cmd str>,
     named: HashMap<&'cmd str, &'cmd str>,
@@ -19,9 +14,19 @@ struct Flag<'cmd> {
     kind: FlagType,
 }
 
+impl<'cmd> Flag<'cmd> {
+    fn full(&self) -> String {
+        format!("--{}", self.name)
+    }
+
+    fn short(&self) -> String {
+        format!("-{}", &self.name[0..1])
+    }
+}
+
 #[derive(Clone, Copy, PartialEq)]
 enum FlagType {
-    Positional,
+    Exact,
     Boolean,
     Value
 }
@@ -44,11 +49,11 @@ impl<'cmd> Arguments<'cmd> {
         self.positional = args;
     }
 
-    fn subcommand(&self) -> Option<&'cmd str> {
-        if self.positional.len() < 2 {
-            return None;
+    fn subcommand(args: Vec<&'cmd str>) -> (Option<&'cmd str>, Vec<&'cmd str>) {
+        if args.len() < 2 {
+            return (None, args);
         }
-        Some(&*self.positional[1])
+        (Some(args[1]), args[2..].to_vec())
     }
 
     fn get_supported(&self, kind: FlagType) -> Vec<&'cmd str> {
@@ -99,7 +104,7 @@ impl<'cmd> Arguments<'cmd> {
                     false
                 }
             },
-            FlagType::Positional => self.positional.len() > 0,
+            FlagType::Exact => self.positional.len() > 0,
         }
     }
 }
@@ -143,35 +148,63 @@ mod test {
 
     #[test]
     fn subcommand_empty() {
-        let mut args = Arguments::new(Vec::new());
-        args.parse(Vec::new());
-
-        match args.subcommand() {
+        let (subcommand, args) = Arguments::subcommand(Vec::new());
+        match subcommand {
             Some(_) => assert!(false, "there should be no subcommand"),
             None => assert!(true),
         }
+        assert_eq!(args.len(), 0);
     }
 
     #[test]
     fn subcommand_one() {
-        let mut args = Arguments::new(Vec::new());
-        args.parse(vec!["wat"]);
+        let (subcommand, args) = Arguments::subcommand(vec!["wat"]);
 
-        match args.subcommand() {
+        match subcommand {
             Some(_) => assert!(false, "main command is not subcommand"),
             None => assert!(true),
         }
+        assert_eq!(args.len(), 1);
     }
 
     #[test]
     fn subcommand_not_empty() {
-        let mut args = Arguments::new(Vec::new());
-        args.parse(vec!["tod", "test"]);
+        let (subcommand, args) = Arguments::subcommand(vec!["tod", "test"]);
 
-        match args.subcommand() {
+        match subcommand {
             Some("test") => assert!(true),
             Some(_) => assert!(false, "wrong subcommand"),
             None => assert!(false, "there should be a subcommand"),
         }
+        assert_eq!(args.len(), 0);
+    }
+
+    #[test]
+    fn usage_ls() {
+        let env = vec!["tod", "ls", "--dir", "../wat"];
+        let (subcommand, args) = Arguments::subcommand(env);
+
+        if let Some("ls") = subcommand {
+            let mut supported = Arguments::new(vec![
+              Flag{ name: "--help", kind: FlagType::Boolean },
+              Flag{ name: "--dir", kind: FlagType::Value },
+            ]);
+            supported.parse(args);
+            if let Some(&"../wat") = supported.named.get("--dir") {
+                assert!(true);
+            } else {
+                assert!(false, "named flag not recognized");
+            }
+        } else {
+            assert!(false, "failed parsing subcommand");
+        }
+    }
+
+    #[test]
+    fn test_flag() {
+        let f = Flag{name: "help", kind: FlagType::Boolean};
+
+        assert_eq!("--help", &f.full());
+        assert_eq!("-h", &f.short());
     }
 }
