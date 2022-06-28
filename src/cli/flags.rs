@@ -7,7 +7,7 @@ pub struct Flag<'cmd> {
 }
 
 impl<'cmd> Flag<'cmd> {
-    fn flag_base(flag: &str) -> Option<&str> {
+    fn base(flag: &str) -> Option<&str> {
         if flag.starts_with('-') {
             Some(str::trim_start_matches(flag, '-'))
         } else {
@@ -91,7 +91,7 @@ impl<'cmd> Arguments<'cmd> {
         let boolean: Vec<&'cmd str> = self.get_supported(FlagType::Boolean);
         args.iter()
             .filter_map(|&x| {
-                if let Some(x) = Flag::flag_base(x) {
+                if let Some(x) = Flag::base(x) {
                     if boolean.contains(&x) {
                         self.boolean.push(x);
                         return None;
@@ -107,7 +107,7 @@ impl<'cmd> Arguments<'cmd> {
         let mut remaining = Vec::new();
         let mut args = args.iter();
         while let Some(&arg) = args.next() {
-            if let Some(arg) = Flag::flag_base(arg) {
+            if let Some(arg) = Flag::base(arg) {
                 if named.contains(&arg) {
                     if let Some(value) = args.next() {
                         self.named.insert(arg, value);
@@ -257,19 +257,19 @@ mod test {
 
     #[test]
     fn test_flag() {
-        if let Some(flag) = Flag::flag_base("--help") {
+        if let Some(flag) = Flag::base("--help") {
             assert_eq!("help", flag);
         } else {
             assert!(false, "full flag not detected")
         }
 
-        if let Some(flag) = Flag::flag_base("-h") {
+        if let Some(flag) = Flag::base("-h") {
             assert_eq!("h", flag);
         } else {
             assert!(false, "short flag not detected")
         }
 
-        if let Some(_) = Flag::flag_base("h-elp") {
+        if let Some(_) = Flag::base("h-elp") {
             assert!(false, "invalid flag wrongly detected")
         } else {
             assert!(true);
