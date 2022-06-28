@@ -1,9 +1,9 @@
 use std::io;
 
+mod flags;
 mod command_help;
 mod command_list;
 mod command_mark;
-mod subcommand;
 
 pub trait Runnable {
     fn run(&self) -> io::Result<()>;
@@ -17,27 +17,27 @@ pub trait WithCwd {
 pub fn parse() -> Box<dyn Runnable> {
     let args: Vec<_> = std::env::args().collect();
     let args: Vec<_> = args.iter().map(|x| x.as_str()).collect();
-    let (subcommand, args) = subcommand::Arguments::subcommand(&args);
+    let (subcommand, args) = flags::Arguments::subcommand(&args);
 
-    let help = subcommand::Flag {
+    let help = flags::Flag {
         name: "help",
-        kind: subcommand::FlagType::Boolean,
+        kind: flags::FlagType::Boolean,
     };
 
     let cmd: Box<dyn Runnable> = match subcommand {
         Some("ls") | Some("list") => {
             let supported = [
                 help,
-                subcommand::Flag {
+                flags::Flag {
                     name: "dir",
-                    kind: subcommand::FlagType::Value,
+                    kind: flags::FlagType::Value,
                 },
-                subcommand::Flag {
+                flags::Flag {
                     name: "format",
-                    kind: subcommand::FlagType::Value,
+                    kind: flags::FlagType::Value,
                 },
             ];
-            let mut supported = subcommand::Arguments::new(&supported);
+            let mut supported = flags::Arguments::new(&supported);
             supported.parse(args);
 
             if supported.has(help) {
@@ -55,23 +55,23 @@ pub fn parse() -> Box<dyn Runnable> {
         }
 
         Some("mark") => {
-            let save = subcommand::Flag {
+            let save = flags::Flag {
                 name: "save",
-                kind: subcommand::FlagType::Boolean,
+                kind: flags::FlagType::Boolean,
             };
             let supported = [
                 help,
                 save,
-                subcommand::Flag {
+                flags::Flag {
                     name: "dir",
-                    kind: subcommand::FlagType::Value,
+                    kind: flags::FlagType::Value,
                 },
-                subcommand::Flag {
+                flags::Flag {
                     name: "comment",
-                    kind: subcommand::FlagType::Value,
+                    kind: flags::FlagType::Value,
                 },
             ];
-            let mut supported = subcommand::Arguments::new(&supported);
+            let mut supported = flags::Arguments::new(&supported);
             supported.parse(args);
 
             if supported.has(help) {
