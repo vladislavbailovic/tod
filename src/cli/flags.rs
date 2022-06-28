@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 #[derive(Clone, Copy)]
 pub struct Flag<'cmd> {
-    pub name: &'cmd str,
-    pub kind: FlagType,
+    pub(super) name: &'cmd str,
+    pub(super) kind: FlagType,
 }
 
 impl<'cmd> Flag<'cmd> {
@@ -24,8 +24,8 @@ pub enum FlagType {
 }
 
 pub struct Arguments<'cmd> {
-    pub named: HashMap<&'cmd str, &'cmd str>,
-    pub positional: Vec<&'cmd str>,
+    pub(super) named: HashMap<&'cmd str, &'cmd str>,
+    pub(super) positional: Vec<&'cmd str>,
     boolean: Vec<&'cmd str>,
     exact: Vec<&'cmd str>,
     supported: &'cmd [Flag<'cmd>],
