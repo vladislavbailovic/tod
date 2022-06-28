@@ -1,14 +1,5 @@
 use std::collections::HashMap;
 
-struct Arguments<'cmd> {
-    positional: Vec<&'cmd str>,
-    named: HashMap<&'cmd str, &'cmd str>,
-    boolean: Vec<&'cmd str>,
-    exact: Vec<&'cmd str>,
-    args: Vec<&'cmd str>,
-    supported: Vec<Flag<'cmd>>,
-}
-
 #[derive(Clone, Copy)]
 struct Flag<'cmd> {
     name: &'cmd str,
@@ -40,8 +31,17 @@ enum FlagType {
     Value,
 }
 
+struct Arguments<'cmd> {
+    positional: Vec<&'cmd str>,
+    named: HashMap<&'cmd str, &'cmd str>,
+    boolean: Vec<&'cmd str>,
+    exact: Vec<&'cmd str>,
+    args: Vec<&'cmd str>,
+    supported: &'cmd [Flag<'cmd>],
+}
+
 impl<'cmd> Arguments<'cmd> {
-    pub fn new(supported: Vec<Flag<'cmd>>) -> Self {
+    pub fn new(supported: &'cmd [Flag<'cmd>]) -> Self {
         Self {
             supported,
             args: Vec::new(),
@@ -143,7 +143,7 @@ mod test {
 
     #[test]
     fn supported() {
-        let args = Arguments::new(vec![Flag {
+        let args = Arguments::new(&[Flag {
             name: "help",
             kind: FlagType::Boolean,
         }]);
@@ -153,7 +153,7 @@ mod test {
 
     #[test]
     fn boolean() {
-        let mut args = Arguments::new(vec![Flag {
+        let mut args = Arguments::new(&[Flag {
             name: "help",
             kind: FlagType::Boolean,
         }]);
@@ -169,7 +169,7 @@ mod test {
 
     #[test]
     fn named() {
-        let mut args = Arguments::new(vec![Flag {
+        let mut args = Arguments::new(&[Flag {
             name: "one",
             kind: FlagType::Value,
         }]);
@@ -182,7 +182,7 @@ mod test {
 
     #[test]
     fn exact() {
-        let mut args = Arguments::new(vec![Flag {
+        let mut args = Arguments::new(&[Flag {
             name: "help",
             kind: FlagType::Exact,
         }]);
@@ -236,7 +236,7 @@ mod test {
         let (subcommand, args) = Arguments::subcommand(env);
 
         if let Some("ls") = subcommand {
-            let mut supported = Arguments::new(vec![
+            let mut supported = Arguments::new(&[
                 Flag {
                     name: "help",
                     kind: FlagType::Boolean,
