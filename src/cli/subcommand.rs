@@ -37,7 +37,7 @@ impl<'cmd> Flag<'cmd> {
 enum FlagType {
     Exact,
     Boolean,
-    Value
+    Value,
 }
 
 impl<'cmd> Arguments<'cmd> {
@@ -77,31 +77,31 @@ impl<'cmd> Arguments<'cmd> {
                 } else {
                     false
                 }
-            },
+            }
         }
     }
 
     fn get_supported(&self, kind: FlagType) -> Vec<&'cmd str> {
-         self.supported.clone().iter().filter_map(|x| {
-             if x.kind == kind {
-                 Some(x.name)
-             } else {
-                 None
-             }
-        }).collect()
+        self.supported
+            .clone()
+            .iter()
+            .filter_map(|x| if x.kind == kind { Some(x.name) } else { None })
+            .collect()
     }
 
     fn parse_boolean(&mut self, args: Vec<&'cmd str>) -> Vec<&'cmd str> {
         let boolean: Vec<&'cmd str> = self.get_supported(FlagType::Boolean);
-        args.into_iter().filter(|x| {
-            if let Some(x) = Flag::flag_base(x) {
-                if boolean.contains(&x) {
-                    self.boolean.push(x);
-                    return false;
+        args.into_iter()
+            .filter(|x| {
+                if let Some(x) = Flag::flag_base(x) {
+                    if boolean.contains(&x) {
+                        self.boolean.push(x);
+                        return false;
+                    }
                 }
-            }
-            true
-        }).collect()
+                true
+            })
+            .collect()
     }
 
     fn parse_named(&mut self, args: Vec<&'cmd str>) -> Vec<&'cmd str> {
@@ -125,13 +125,15 @@ impl<'cmd> Arguments<'cmd> {
 
     fn parse_exact(&mut self, args: Vec<&'cmd str>) -> Vec<&'cmd str> {
         let exact: Vec<&'cmd str> = self.get_supported(FlagType::Exact);
-        args.into_iter().filter(|x| {
-            if exact.contains(&x) {
-                self.exact.push(x);
-                return false;
-            }
-            true
-        }).collect()
+        args.into_iter()
+            .filter(|x| {
+                if exact.contains(x) {
+                    self.exact.push(x);
+                    return false;
+                }
+                true
+            })
+            .collect()
     }
 }
 
@@ -141,30 +143,36 @@ mod test {
 
     #[test]
     fn supported() {
-        let args = Arguments::new(vec![
-            Flag{name: "help", kind: FlagType::Boolean}
-        ]);
+        let args = Arguments::new(vec![Flag {
+            name: "help",
+            kind: FlagType::Boolean,
+        }]);
         let supported = args.get_supported(FlagType::Boolean);
         assert_eq!(supported.len(), 1);
     }
 
     #[test]
     fn boolean() {
-        let mut args = Arguments::new(vec![
-            Flag{name: "help", kind: FlagType::Boolean}
-        ]);
+        let mut args = Arguments::new(vec![Flag {
+            name: "help",
+            kind: FlagType::Boolean,
+        }]);
         let remaining = args.parse_boolean(vec!["one", "--help", "two"]);
         assert_eq!(args.boolean.len(), 1);
-        assert!(args.has(Flag{ name: "help", kind: FlagType::Boolean}));
+        assert!(args.has(Flag {
+            name: "help",
+            kind: FlagType::Boolean
+        }));
 
         assert_eq!(remaining.len(), 2);
     }
 
     #[test]
     fn named() {
-        let mut args = Arguments::new(vec![
-            Flag{name: "one", kind: FlagType::Value}
-        ]);
+        let mut args = Arguments::new(vec![Flag {
+            name: "one",
+            kind: FlagType::Value,
+        }]);
         let remaining = args.parse_named(vec!["--one", "two", "three"]);
         assert_eq!(args.named.len(), 1);
         assert_eq!(remaining.len(), 1);
@@ -174,12 +182,16 @@ mod test {
 
     #[test]
     fn exact() {
-        let mut args = Arguments::new(vec![
-            Flag{name: "help", kind: FlagType::Exact}
-        ]);
+        let mut args = Arguments::new(vec![Flag {
+            name: "help",
+            kind: FlagType::Exact,
+        }]);
         let remaining = args.parse_exact(vec!["one", "help", "--help", "two"]);
         assert_eq!(args.exact.len(), 1);
-        assert!(args.has(Flag{ name: "help", kind: FlagType::Exact}));
+        assert!(args.has(Flag {
+            name: "help",
+            kind: FlagType::Exact
+        }));
 
         assert_eq!(remaining.len(), 3);
         assert!(remaining.contains(&"--help"));
@@ -225,8 +237,14 @@ mod test {
 
         if let Some("ls") = subcommand {
             let mut supported = Arguments::new(vec![
-              Flag{ name: "help", kind: FlagType::Boolean },
-              Flag{ name: "dir", kind: FlagType::Value },
+                Flag {
+                    name: "help",
+                    kind: FlagType::Boolean,
+                },
+                Flag {
+                    name: "dir",
+                    kind: FlagType::Value,
+                },
             ]);
             supported.parse(args);
             if let Some(&"../wat") = supported.named.get("dir") {
@@ -241,7 +259,10 @@ mod test {
 
     #[test]
     fn test_flag() {
-        let f = Flag{name: "help", kind: FlagType::Boolean};
+        let f = Flag {
+            name: "help",
+            kind: FlagType::Boolean,
+        };
 
         assert_eq!("--help", &f.full());
         assert_eq!("-h", &f.short());
