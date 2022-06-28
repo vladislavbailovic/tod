@@ -1,9 +1,9 @@
 use std::io;
 
-mod flags;
 mod command_help;
 mod command_list;
 mod command_mark;
+mod flags;
 
 pub trait Runnable {
     fn run(&self) -> io::Result<()>;

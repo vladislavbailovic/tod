@@ -36,7 +36,6 @@ pub struct Arguments<'cmd> {
     pub positional: Vec<&'cmd str>,
     boolean: Vec<&'cmd str>,
     exact: Vec<&'cmd str>,
-    args: &'cmd [&'cmd str],
     supported: &'cmd [Flag<'cmd>],
 }
 
@@ -44,7 +43,6 @@ impl<'cmd> Arguments<'cmd> {
     pub fn new(supported: &'cmd [Flag<'cmd>]) -> Self {
         Self {
             supported,
-            args: &[],
             positional: Vec::new(),
             boolean: Vec::new(),
             exact: Vec::new(),
@@ -53,8 +51,8 @@ impl<'cmd> Arguments<'cmd> {
     }
 
     pub fn parse(&mut self, args: &'cmd [&'cmd str]) {
-        self.args = args;
-        let args = self.parse_boolean(args);
+        let args = Arguments::normalize(args);
+        let args = self.parse_boolean(&args);
         let args = self.parse_named(&args);
         let args = self.parse_exact(&args);
         self.positional = args;
@@ -73,6 +71,21 @@ impl<'cmd> Arguments<'cmd> {
             FlagType::Exact => self.exact.contains(&flag.name),
             FlagType::Value => self.named.get(flag.name).is_some(),
         }
+    }
+
+    fn normalize(what: &[&'cmd str]) -> Vec<&'cmd str> {
+        let mut result = Vec::new();
+        for arg in what {
+            if arg.contains('-') && arg.contains('=') {
+                if let Some((arg, value)) = arg.split_once('=') {
+                    result.push(arg);
+                    result.push(value);
+                }
+            } else {
+                result.push(arg);
+            }
+        }
+        result
     }
 
     fn get_supported(&self, kind: FlagType) -> Vec<&'cmd str> {
