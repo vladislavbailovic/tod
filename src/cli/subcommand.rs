@@ -54,8 +54,8 @@ impl<'cmd> Arguments<'cmd> {
 
     pub fn parse(&mut self, args: &'cmd[&'cmd str]) {
         self.args = args.clone();
-        let args = self.parse_boolean(args.to_vec());
-        let args = self.parse_named(args);
+        let args = self.parse_boolean(args);
+        let args = self.parse_named(&args);
         let args = self.parse_exact(&args);
         self.positional = args;
     }
@@ -89,25 +89,25 @@ impl<'cmd> Arguments<'cmd> {
             .collect()
     }
 
-    fn parse_boolean(&mut self, args: Vec<&'cmd str>) -> Vec<&'cmd str> {
+    fn parse_boolean(&mut self, args: &[&'cmd str]) -> Vec<&'cmd str> {
         let boolean: Vec<&'cmd str> = self.get_supported(FlagType::Boolean);
         args.into_iter()
-            .filter(|x| {
+            .filter_map(|&x| {
                 if let Some(x) = Flag::flag_base(x) {
                     if boolean.contains(&x) {
                         self.boolean.push(x);
-                        return false;
+                        return None;
                     }
                 }
-                true
+                Some(x)
             })
             .collect()
     }
 
-    fn parse_named(&mut self, args: Vec<&'cmd str>) -> Vec<&'cmd str> {
+    fn parse_named(&mut self, args: &[&'cmd str]) -> Vec<&'cmd str> {
         let named: Vec<&'cmd str> = self.get_supported(FlagType::Value);
         let mut remaining = Vec::new();
-        let mut args = args.iter();
+        let mut args = args.into_iter();
         while let Some(&arg) = args.next() {
             if let Some(arg) = Flag::flag_base(arg) {
                 if named.contains(&arg) {
@@ -157,7 +157,7 @@ mod test {
             name: "help",
             kind: FlagType::Boolean,
         }]);
-        let remaining = args.parse_boolean(vec!["one", "--help", "two"]);
+        let remaining = args.parse_boolean(&["one", "--help", "two"]);
         assert_eq!(args.boolean.len(), 1);
         assert!(args.has(Flag {
             name: "help",
@@ -173,7 +173,7 @@ mod test {
             name: "one",
             kind: FlagType::Value,
         }]);
-        let remaining = args.parse_named(vec!["--one", "two", "three"]);
+        let remaining = args.parse_named(&["--one", "two", "three"]);
         assert_eq!(args.named.len(), 1);
         assert_eq!(remaining.len(), 1);
 
