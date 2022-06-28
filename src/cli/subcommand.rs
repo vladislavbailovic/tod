@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 #[derive(Clone, Copy)]
-struct Flag<'cmd> {
-    name: &'cmd str,
-    kind: FlagType,
+pub struct Flag<'cmd> {
+    pub name: &'cmd str,
+    pub kind: FlagType,
 }
 
 impl<'cmd> Flag<'cmd> {
@@ -25,18 +25,18 @@ impl<'cmd> Flag<'cmd> {
 }
 
 #[derive(Clone, Copy, PartialEq)]
-enum FlagType {
+pub enum FlagType {
     Exact,
     Boolean,
     Value,
 }
 
-struct Arguments<'cmd> {
-    positional: Vec<&'cmd str>,
-    named: HashMap<&'cmd str, &'cmd str>,
+pub struct Arguments<'cmd> {
+    pub named: HashMap<&'cmd str, &'cmd str>,
+    pub positional: Vec<&'cmd str>,
     boolean: Vec<&'cmd str>,
     exact: Vec<&'cmd str>,
-    args: &'cmd[&'cmd str],
+    args: &'cmd [&'cmd str],
     supported: &'cmd [Flag<'cmd>],
 }
 
@@ -52,7 +52,7 @@ impl<'cmd> Arguments<'cmd> {
         }
     }
 
-    pub fn parse(&mut self, args: &'cmd[&'cmd str]) {
+    pub fn parse(&mut self, args: &'cmd [&'cmd str]) {
         self.args = args.clone();
         let args = self.parse_boolean(args);
         let args = self.parse_named(&args);
@@ -60,7 +60,7 @@ impl<'cmd> Arguments<'cmd> {
         self.positional = args;
     }
 
-    pub fn subcommand(args: &'cmd[&'cmd str]) -> (Option<&'cmd str>, &'cmd[&'cmd str]) {
+    pub fn subcommand(args: &'cmd [&'cmd str]) -> (Option<&'cmd str>, &'cmd [&'cmd str]) {
         if args.len() < 2 {
             return (None, args);
         }
