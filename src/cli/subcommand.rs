@@ -56,7 +56,7 @@ impl<'cmd> Arguments<'cmd> {
         self.args = args.clone();
         let args = self.parse_boolean(args.to_vec());
         let args = self.parse_named(args);
-        let args = self.parse_exact(args);
+        let args = self.parse_exact(&args);
         self.positional = args;
     }
 
@@ -123,15 +123,15 @@ impl<'cmd> Arguments<'cmd> {
         remaining
     }
 
-    fn parse_exact(&mut self, args: Vec<&'cmd str>) -> Vec<&'cmd str> {
+    fn parse_exact(&mut self, args: &[&'cmd str]) -> Vec<&'cmd str> {
         let exact: Vec<&'cmd str> = self.get_supported(FlagType::Exact);
         args.into_iter()
-            .filter(|x| {
-                if exact.contains(x) {
+            .filter_map(|&x| {
+                if exact.contains(&x) {
                     self.exact.push(x);
-                    return false;
+                    return None;
                 }
-                true
+                Some(x)
             })
             .collect()
     }
@@ -186,7 +186,7 @@ mod test {
             name: "help",
             kind: FlagType::Exact,
         }]);
-        let remaining = args.parse_exact(vec!["one", "help", "--help", "two"]);
+        let remaining = args.parse_exact(&["one", "help", "--help", "two"]);
         assert_eq!(args.exact.len(), 1);
         assert!(args.has(Flag {
             name: "help",
