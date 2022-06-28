@@ -8,19 +8,11 @@ pub struct Flag<'cmd> {
 
 impl<'cmd> Flag<'cmd> {
     fn flag_base(flag: &str) -> Option<&str> {
-        if flag.contains('-') {
+        if flag.starts_with('-') {
             Some(str::trim_start_matches(flag, '-'))
         } else {
             None
         }
-    }
-
-    fn full(&self) -> String {
-        format!("--{}", self.name)
-    }
-
-    fn short(&self) -> String {
-        format!("-{}", &self.name[0..1])
     }
 }
 
@@ -76,7 +68,7 @@ impl<'cmd> Arguments<'cmd> {
     fn normalize(what: &[&'cmd str]) -> Vec<&'cmd str> {
         let mut result = Vec::new();
         for arg in what {
-            if arg.contains('-') && arg.contains('=') {
+            if arg.starts_with('-') && arg.contains('=') {
                 if let Some((arg, value)) = arg.split_once('=') {
                     result.push(arg);
                     result.push(value);
@@ -265,19 +257,22 @@ mod test {
 
     #[test]
     fn test_flag() {
-        let f = Flag {
-            name: "help",
-            kind: FlagType::Boolean,
-        };
-
-        assert_eq!("--help", &f.full());
-        assert_eq!("-h", &f.short());
-
         if let Some(flag) = Flag::flag_base("--help") {
             assert_eq!("help", flag);
+        } else {
+            assert!(false, "full flag not detected")
         }
+
         if let Some(flag) = Flag::flag_base("-h") {
             assert_eq!("h", flag);
+        } else {
+            assert!(false, "short flag not detected")
+        }
+
+        if let Some(_) = Flag::flag_base("h-elp") {
+            assert!(false, "invalid flag wrongly detected")
+        } else {
+            assert!(true);
         }
     }
 }
