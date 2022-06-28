@@ -60,11 +60,11 @@ impl<'cmd> Arguments<'cmd> {
         self.positional = args;
     }
 
-    pub fn subcommand(args: Vec<&'cmd str>) -> (Option<&'cmd str>, Vec<&'cmd str>) {
+    pub fn subcommand(args: &'cmd[&'cmd str]) -> (Option<&'cmd str>, &'cmd[&'cmd str]) {
         if args.len() < 2 {
             return (None, args);
         }
-        (Some(args[1]), args[2..].to_vec())
+        (Some(args[1]), &args[2..])
     }
 
     pub fn has(&self, flag: Flag) -> bool {
@@ -199,7 +199,7 @@ mod test {
 
     #[test]
     fn subcommand_empty() {
-        let (subcommand, args) = Arguments::subcommand(Vec::new());
+        let (subcommand, args) = Arguments::subcommand(&[]);
         match subcommand {
             Some(_) => assert!(false, "there should be no subcommand"),
             None => assert!(true),
@@ -209,7 +209,7 @@ mod test {
 
     #[test]
     fn subcommand_one() {
-        let (subcommand, args) = Arguments::subcommand(vec!["wat"]);
+        let (subcommand, args) = Arguments::subcommand(&["wat"]);
 
         match subcommand {
             Some(_) => assert!(false, "main command is not subcommand"),
@@ -220,7 +220,7 @@ mod test {
 
     #[test]
     fn subcommand_not_empty() {
-        let (subcommand, args) = Arguments::subcommand(vec!["tod", "test"]);
+        let (subcommand, args) = Arguments::subcommand(&["tod", "test"]);
 
         match subcommand {
             Some("test") => assert!(true),
@@ -233,7 +233,7 @@ mod test {
     #[test]
     fn usage_ls() {
         let env = vec!["tod", "ls", "--dir", "../wat"];
-        let (subcommand, args) = Arguments::subcommand(env);
+        let (subcommand, args) = Arguments::subcommand(&env);
 
         if let Some("ls") = subcommand {
             let mut supported = Arguments::new(&[
@@ -246,7 +246,7 @@ mod test {
                     kind: FlagType::Value,
                 },
             ]);
-            supported.parse(args);
+            supported.parse(args.to_vec());
             if let Some(&"../wat") = supported.named.get("dir") {
                 assert!(true);
             } else {
