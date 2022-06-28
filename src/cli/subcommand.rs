@@ -53,7 +53,7 @@ impl<'cmd> Arguments<'cmd> {
     }
 
     pub fn parse(&mut self, args: &'cmd [&'cmd str]) {
-        self.args = args.clone();
+        self.args = args;
         let args = self.parse_boolean(args);
         let args = self.parse_named(&args);
         let args = self.parse_exact(&args);
@@ -71,19 +71,12 @@ impl<'cmd> Arguments<'cmd> {
         match flag.kind {
             FlagType::Boolean => self.boolean.contains(&flag.name),
             FlagType::Exact => self.exact.contains(&flag.name),
-            FlagType::Value => {
-                if let Some(_) = self.named.get(flag.name) {
-                    true
-                } else {
-                    false
-                }
-            }
+            FlagType::Value => self.named.get(flag.name).is_some(),
         }
     }
 
     fn get_supported(&self, kind: FlagType) -> Vec<&'cmd str> {
         self.supported
-            .clone()
             .iter()
             .filter_map(|x| if x.kind == kind { Some(x.name) } else { None })
             .collect()
@@ -91,7 +84,7 @@ impl<'cmd> Arguments<'cmd> {
 
     fn parse_boolean(&mut self, args: &[&'cmd str]) -> Vec<&'cmd str> {
         let boolean: Vec<&'cmd str> = self.get_supported(FlagType::Boolean);
-        args.into_iter()
+        args.iter()
             .filter_map(|&x| {
                 if let Some(x) = Flag::flag_base(x) {
                     if boolean.contains(&x) {
@@ -107,7 +100,7 @@ impl<'cmd> Arguments<'cmd> {
     fn parse_named(&mut self, args: &[&'cmd str]) -> Vec<&'cmd str> {
         let named: Vec<&'cmd str> = self.get_supported(FlagType::Value);
         let mut remaining = Vec::new();
-        let mut args = args.into_iter();
+        let mut args = args.iter();
         while let Some(&arg) = args.next() {
             if let Some(arg) = Flag::flag_base(arg) {
                 if named.contains(&arg) {
@@ -125,7 +118,7 @@ impl<'cmd> Arguments<'cmd> {
 
     fn parse_exact(&mut self, args: &[&'cmd str]) -> Vec<&'cmd str> {
         let exact: Vec<&'cmd str> = self.get_supported(FlagType::Exact);
-        args.into_iter()
+        args.iter()
             .filter_map(|&x| {
                 if exact.contains(&x) {
                     self.exact.push(x);

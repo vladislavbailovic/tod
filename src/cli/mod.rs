@@ -91,7 +91,7 @@ pub fn parse() -> Box<dyn Runnable> {
             Box::new(cmd)
         }
 
-        None | _ => Box::new(command_help::Command::default()),
+        _ => Box::new(command_help::Command::default()),
     };
     cmd
 }
