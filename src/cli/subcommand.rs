@@ -36,7 +36,7 @@ struct Arguments<'cmd> {
     named: HashMap<&'cmd str, &'cmd str>,
     boolean: Vec<&'cmd str>,
     exact: Vec<&'cmd str>,
-    args: Vec<&'cmd str>,
+    args: &'cmd[&'cmd str],
     supported: &'cmd [Flag<'cmd>],
 }
 
@@ -44,7 +44,7 @@ impl<'cmd> Arguments<'cmd> {
     pub fn new(supported: &'cmd [Flag<'cmd>]) -> Self {
         Self {
             supported,
-            args: Vec::new(),
+            args: &[],
             positional: Vec::new(),
             boolean: Vec::new(),
             exact: Vec::new(),
@@ -52,9 +52,9 @@ impl<'cmd> Arguments<'cmd> {
         }
     }
 
-    pub fn parse(&mut self, args: Vec<&'cmd str>) {
+    pub fn parse(&mut self, args: &'cmd[&'cmd str]) {
         self.args = args.clone();
-        let args = self.parse_boolean(args);
+        let args = self.parse_boolean(args.to_vec());
         let args = self.parse_named(args);
         let args = self.parse_exact(args);
         self.positional = args;
@@ -246,7 +246,7 @@ mod test {
                     kind: FlagType::Value,
                 },
             ]);
-            supported.parse(args.to_vec());
+            supported.parse(args);
             if let Some(&"../wat") = supported.named.get("dir") {
                 assert!(true);
             } else {
