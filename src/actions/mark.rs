@@ -4,42 +4,41 @@ use std::io::{self, BufRead, Write};
 use crate::actions::scan;
 use crate::todo::Todo;
 
-pub enum Marker<'mark> {
-    None(&'mark Option<String>),
-    Done(&'mark Option<String>),
+#[derive(Debug)]
+pub enum Marker {
+    None(Option<String>),
+    Done(Option<String>),
 }
 
-impl<'mark> Marker<'mark> {
+impl Marker {
     pub fn mark(&self, path: &str, todo_id: &str) -> io::Result<Replacer> {
         let todo = scan::find(path, todo_id)?;
         Ok(Replacer::new(todo, self.get_mark()))
     }
 
-    fn get_mark(&self) -> String {
+    fn get_mark(&self) -> Option<String> {
         match &self {
-            Marker::None(Some(comment)) => comment.to_string(),
-            Marker::None(None) => String::from(""),
-            Marker::Done(Some(comment)) => format!("Done ({}):", comment),
-            Marker::Done(None) => String::from("Done:"),
+            Marker::None(None) => None,
+            Marker::None(Some(comment)) => Some(comment.to_string()),
+            Marker::Done(Some(comment)) => Some(format!("Done ({}):", comment)),
+            Marker::Done(None) => Some(String::from("Done:")),
         }
     }
 }
 
 pub struct Replacer {
     todo: Todo,
-    mark: String,
+    mark: Option<String>,
 }
 
 impl Replacer {
-    fn new(todo: Todo, mark: String) -> Self {
+    fn new(todo: Todo, mark: Option<String>) -> Self {
         Self { todo, mark }
     }
 
     pub fn dry_run(&self) -> io::Result<Vec<String>> {
         let file = File::open(&self.todo.file)?;
         let lines = io::BufReader::new(file).lines().filter_map(|x| x.ok());
-        // .collect();
-        // lines[self.todo.line] = lines[self.todo.line].replace("TODO", &self.mark);
         let lines = self.process_lines(lines);
         Ok(lines)
     }
@@ -72,7 +71,11 @@ impl Replacer {
 
                     left.strip_suffix('@').unwrap_or(left)
                 };
-                format!("{}{} {}", left, self.mark, self.todo.get())
+                if let Some(mark) = &self.mark {
+                    format!("{}{} {}", left, mark, self.todo.get())
+                } else {
+                    left.to_string()
+                }
             })
             .collect()
     }

@@ -1,11 +1,13 @@
 use super::*;
 use crate::actions::mark::Marker;
 
+#[derive(Debug)]
 pub struct Command {
     id: String,
     path: String,
     comment: Option<String>,
     save: bool,
+    marker: Option<Marker>
 }
 
 impl Command {
@@ -17,6 +19,7 @@ impl Command {
             path: ".".to_string(),
             comment: None,
             save: false,
+            marker: None,
         }
     }
 
@@ -24,14 +27,32 @@ impl Command {
         self.comment = Some(cmt.to_string());
     }
 
+    pub fn get_comment(&self) -> Option<String> {
+        if let Some(comment) = &self.comment {
+            return Some(comment.as_str().to_string());
+        }
+        None
+    }
+
     pub fn set_save(&mut self) {
         self.save = true;
+    }
+
+    pub fn set_none(&mut self) {
+        self.marker = Some(Marker::None(self.get_comment()));
+    }
+
+    pub fn set_done(&mut self) {
+        self.marker = Some(Marker::Done(self.get_comment()));
     }
 }
 
 impl Runnable for Command {
     fn run(&self) -> io::Result<()> {
-        let marker = Marker::Done(&self.comment);
+        let mut marker = &Marker::Done(self.get_comment());
+        if let Some(m) = &self.marker {
+            marker = m;
+        }
         let replacer = marker.mark(&self.path, &self.id)?;
         let lines = if self.save {
             replacer.replace()?

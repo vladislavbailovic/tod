@@ -59,9 +59,19 @@ pub fn parse() -> Box<dyn Runnable> {
                 name: "save",
                 kind: flags::FlagType::Boolean,
             };
+            let done = flags::Flag {
+                name: "done",
+                kind: flags::FlagType::Exact,
+            };
+            let none = flags::Flag {
+                name: "none",
+                kind: flags::FlagType::Exact,
+            };
             let supported = [
                 help,
                 save,
+                done,
+                none,
                 flags::Flag {
                     name: "dir",
                     kind: flags::FlagType::Value,
@@ -88,6 +98,13 @@ pub fn parse() -> Box<dyn Runnable> {
             if supported.has(save) {
                 cmd.set_save();
             }
+
+            if supported.has(done) {
+                cmd.set_done();
+            } else if supported.has(none) {
+                cmd.set_none();
+            }
+
             Box::new(cmd)
         }
 
