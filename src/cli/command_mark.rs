@@ -7,12 +7,10 @@ pub struct Command {
     path: String,
     comment: Option<String>,
     save: bool,
-    marker: Option<Marker>
+    marker: Option<Marker>,
 }
 
 impl Command {
-    // TODO: clear entire comment when marking
-
     pub fn new(id: &str) -> Self {
         Self {
             id: id.to_string(),
