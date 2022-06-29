@@ -5,6 +5,9 @@ mod command_list;
 mod command_mark;
 mod flags;
 
+// TODO: version flag
+// TODO: improve help
+
 pub trait Runnable {
     fn run(&self) -> io::Result<()>;
 }

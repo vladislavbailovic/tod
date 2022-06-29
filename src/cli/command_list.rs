@@ -2,6 +2,8 @@ use super::*;
 use crate::actions::scan;
 use crate::todo::{Format, Formatter};
 
+// TODO: allow sorting by priority
+
 pub struct Command {
     path: String,
     format: Format,

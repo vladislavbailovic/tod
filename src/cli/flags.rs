@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+// TODO: allow for short-form flags
+
 #[derive(Clone, Copy)]
 pub struct Flag<'cmd> {
     pub(super) name: &'cmd str,

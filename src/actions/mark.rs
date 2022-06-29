@@ -4,6 +4,9 @@ use std::io::{self, BufRead, Write};
 use crate::actions::scan;
 use crate::todo::Todo;
 
+// TODO: clean up the whole command/marker API
+// TODO: remove entire comment line (if possible) when scrubbing todo
+
 #[derive(Debug)]
 pub enum Marker {
     None(Option<String>),
