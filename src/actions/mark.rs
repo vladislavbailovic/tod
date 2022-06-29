@@ -37,11 +37,10 @@ impl Replacer {
 
     pub fn dry_run(&self) -> io::Result<Vec<String>> {
         let file = File::open(&self.todo.file)?;
-        let mut lines: Vec<String> = io::BufReader::new(file)
-            .lines()
-            .filter_map(|x| x.ok())
-            .collect();
-        lines[self.todo.line] = lines[self.todo.line].replace("TODO", &self.mark);
+        let lines = io::BufReader::new(file).lines().filter_map(|x| x.ok());
+        // .collect();
+        // lines[self.todo.line] = lines[self.todo.line].replace("TODO", &self.mark);
+        let lines = self.process_lines(lines);
         Ok(lines)
     }
 
@@ -54,6 +53,28 @@ impl Replacer {
 
     pub fn affected_line(&self) -> usize {
         self.todo.line
+    }
+
+    fn process_lines(&self, lines: impl Iterator<Item = String>) -> Vec<String> {
+        lines
+            .enumerate()
+            .map(|(idx, mut line)| {
+                if idx != self.todo.line {
+                    return line;
+                }
+                let left = {
+                    let (left, _) = line.split_at_mut(self.todo.pos);
+                    let left = left.strip_suffix(' ').unwrap_or(left);
+                    let left = left.strip_suffix(':').unwrap_or(left);
+                    let left = left.strip_suffix('!').unwrap_or(left);
+
+                    let left = &left[..left.len() - 4];
+
+                    left.strip_suffix('@').unwrap_or(left)
+                };
+                format!("{}{} {}", left, self.mark, self.todo.get())
+            })
+            .collect()
     }
 }
 

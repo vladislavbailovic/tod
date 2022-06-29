@@ -7,7 +7,7 @@ use crate::priority::*;
 pub struct Todo {
     pub file: String,
     pub line: usize,
-    pub(super) pos: usize,
+    pub pos: usize,
     pub(super) priority: Priority,
     pub(super) todo: String,
 }
@@ -15,6 +15,10 @@ pub struct Todo {
 impl Todo {
     pub fn get_id(&self) -> String {
         format!("{:x}", self.hash())
+    }
+
+    pub fn get(&self) -> &String {
+        &self.todo
     }
 
     fn hash(&self) -> u64 {

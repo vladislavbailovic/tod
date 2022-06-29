@@ -10,7 +10,6 @@ pub struct Command {
 
 impl Command {
     // TODO: clear entire comment when marking
-    // TODO: take care of priority indicators and colons in replacement
 
     pub fn new(id: &str) -> Self {
         Self {
