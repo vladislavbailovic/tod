@@ -44,7 +44,7 @@ impl<'cmd> Arguments<'cmd> {
         }
     }
 
-    pub fn parse(&mut self, args: &'cmd [&'cmd str]) {
+    pub fn parse(&mut self, args: &[&'cmd str]) {
         let args = Arguments::normalize(args);
         let args = self.parse_boolean(&args);
         let args = self.parse_named(&args);
