@@ -2,5 +2,14 @@ tod [SUBCOMMAND] [OPTIONS...]
 
 ... where SUBCOMMAND is one of:
 	- help:    this help page
-	- ls|list: list todo lines
+
+	- ls|list: list todo lines. Supported options:
+		--format=editor for editor support
+		--dir=PATH
+
 	- mark:    mark todo as done
+		--dir=PATH
+		--save mark in place (defaults to dry run)
+		--comment=COMMENT mark with COMMENT (ie. replace 'TODO' with 'Done (comment):')
+		done - mark as 'Done' (default)
+		none - Do not mark as done - scrub todo, or replace with comment (if supplied)
