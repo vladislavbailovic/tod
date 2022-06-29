@@ -91,16 +91,24 @@ mod test {
     #[test]
     fn done_with_comment_mark_getting() {
         let comment = Some(String::from("fixed in <hash>"));
-        let m = Marker::Done(&comment);
-        assert_eq!("Done (fixed in <hash>):", m.get_mark());
+        let m = Marker::Done(comment);
+        if let Some(mark) = m.get_mark() {
+            assert_eq!("Done (fixed in <hash>):", mark);
+        } else {
+            assert!(false, "expected a string in marker");
+        }
     }
 
     #[test]
     fn mark_returns_replacer() {
-        let marker = Marker::None(&None);
+        let marker = Marker::None(None);
         let rp = marker.mark(".", "79b");
         if let Ok(rp) = rp {
-            assert_eq!(rp.mark, String::from(""));
+            if let Some(_) = rp.mark {
+                assert!(false, "expected no mark");
+            } else {
+                assert!(true);
+            }
         } else {
             assert!(false, "unable to find a todo from tests");
         }
@@ -109,13 +117,17 @@ mod test {
     #[test]
     fn mark_none_with_string_replaces_todo() {
         let comment = Some(String::from("fixed in <hash>"));
-        let m = Marker::None(&comment);
-        assert_eq!("fixed in <hash>", m.get_mark());
+        let m = Marker::None(comment);
+        if let Some(mark) = m.get_mark() {
+            assert_eq!("fixed in <hash>", mark);
+        } else {
+            assert!(false, "expected comment");
+        }
     }
 
     #[test]
     fn replacer_dry_run() {
-        let marker = Marker::Done(&None);
+        let marker = Marker::Done(None);
         let rp = marker.mark(".", "79b").unwrap();
         if let Ok(lines) = rp.dry_run() {
             assert!(lines.len() > 42);
